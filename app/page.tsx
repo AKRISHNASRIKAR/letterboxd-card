@@ -181,7 +181,7 @@ export default function HomePage() {
 
         {/* github */}
         <a
-          href="https://github.com/YOUR_NAME/letterboxd-card-backend"
+          href="https://github.com/AKRISHNASRIKAR/letterboxd-card-backend"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs transition-all"
@@ -654,7 +654,7 @@ export default function HomePage() {
               }}
             >
               curl
-              &quot;https://letterboxd-card-backend.vercel.app/api/stats?user=dave&quot;
+              &quot;https://letterboxd-card-backend.vercel.app/api/stats?user=akrishnasrikar&quot;
             </code>
           </div>
         </div>
@@ -705,7 +705,7 @@ export default function HomePage() {
             bugs, or just leave a ★.
           </p>
           <a
-            href="https://github.com/YOUR_NAME/letterboxd-card-backend"
+            href="https://github.com/AKRISHNASRIKAR/letterboxd-card-backend"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl text-sm font-semibold transition-all accent-glow"
@@ -748,19 +748,19 @@ export default function HomePage() {
             {[
               {
                 label: "GitHub",
-                href: "https://github.com/YOUR_NAME/letterboxd-card-backend",
+                href: "https://github.com/AKRISHNASRIKAR/letterboxd-card-backend",
               },
               {
                 label: "Issues",
-                href: "https://github.com/YOUR_NAME/letterboxd-card-backend/issues",
+                href: "https://github.com/AKRISHNASRIKAR/letterboxd-card-backend/issues",
               },
               {
                 label: "MIT License",
-                href: "https://github.com/YOUR_NAME/letterboxd-card-backend/blob/main/LICENSE",
+                href: "https://github.com/AKRISHNASRIKAR/letterboxd-card-backend/blob/main/LICENSE",
               },
               {
                 label: "CONTRIBUTING",
-                href: "https://github.com/YOUR_NAME/letterboxd-card-backend/blob/main/CONTRIBUTING.md",
+                href: "https://github.com/AKRISHNASRIKAR/letterboxd-card-backend/blob/main/CONTRIBUTING.md",
               },
             ].map((l) => (
               <a
