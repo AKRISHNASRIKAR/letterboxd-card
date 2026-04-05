@@ -1,26 +1,179 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap');
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Design tokens ────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg:         #09090b;
+  --surface:    #101012;
+  --surface2:   #17171a;
+  --surface3:   #1e1e22;
+  --border:     rgba(255, 255, 255, 0.06);
+  --border2:    rgba(255, 255, 255, 0.11);
+  --border3:    rgba(255, 255, 255, 0.18);
+  --text:       #f3ede6;
+  --text2:      #b8b0a6;
+  --muted:      #6e6860;
+  --muted2:     #3e3a36;
+  --accent:     #d4a853;
+  --accent2:    #b88c3f;
+  --accent3:    #f2c96e;
+  --accentbg:   rgba(212, 168, 83, 0.08);
+  --accentbg2:  rgba(212, 168, 83, 0.14);
+  --green:      #52c27a;
+  --greenbg:    rgba(82, 194, 122, 0.09);
+  --red:        #e05c5c;
+  --redbg:      rgba(224, 92, 92, 0.09);
+  --serif:      'Playfair Display', Georgia, 'Times New Roman', serif;
+  --mono:       'DM Mono', 'Fira Code', 'Cascadia Code', monospace;
+  --sans:       'Outfit', system-ui, -apple-system, sans-serif;
+  --radius-sm:  8px;
+  --radius:     14px;
+  --radius-lg:  20px;
+  --radius-xl:  28px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ─── Base ─────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.65;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ─── Selection ────────────────────────────────────────────────── */
+::selection {
+  background: rgba(212, 168, 83, 0.22);
+  color: var(--text);
+}
+
+/* ─── Scrollbar ────────────────────────────────────────────────── */
+::-webkit-scrollbar          { width: 5px; height: 5px; }
+::-webkit-scrollbar-track    { background: transparent; }
+::-webkit-scrollbar-thumb    { background: var(--surface3); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted2); }
+
+/* ─── Focus ────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid rgba(212, 168, 83, 0.5);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ─── Utility classes ──────────────────────────────────────────── */
+.font-serif { font-family: var(--serif) !important; }
+.font-mono  { font-family: var(--mono)  !important; }
+.font-sans  { font-family: var(--sans)  !important; }
+
+/* film strip top bar decoration */
+.film-strip-top {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--accent) 0px,
+    var(--accent) 18px,
+    transparent  18px,
+    transparent  28px
+  );
+  opacity: 0.25;
+}
+
+/* glow effect for accent elements */
+.accent-glow {
+  box-shadow: 0 0 24px rgba(212, 168, 83, 0.18), 0 0 48px rgba(212, 168, 83, 0.08);
+}
+
+.accent-glow:hover {
+  box-shadow: 0 0 32px rgba(212, 168, 83, 0.28), 0 0 64px rgba(212, 168, 83, 0.12);
+}
+
+/* card surface */
+.card-surface {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.card-surface-2 {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* code / mono pill */
+.code-pill {
+  background: var(--surface3);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(212, 168, 83, 0.15);
+}
+
+/* section divider */
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0;
+}
+
+/* stagger animations */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.5s ease both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease both;
+}
+
+/* skeleton shimmer */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface2) 25%,
+    var(--surface3) 50%,
+    var(--surface2) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
 }

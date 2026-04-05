@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { fetchStats } from "@/lib/api";
+import { fetchStats } from "../../lib/api";
 import { UserInput } from "@/components/UserInput";
 import { ThemePicker } from "@/components/ThemePicker";
 import { PreviewCard } from "@/components/PreviewCard";
 import { CopyableLink } from "@/components/CopyableLink";
 import { StatsPreview } from "@/components/StatsPreview";
 import { Badge } from "@/components/ui/Badge";
-import type { LetterboxdStats, Theme } from "@/types/letterboxd";
+import type { LetterboxdStats, Theme } from "../../types/letterboxd";
 
 /* ── icons ── */
 const GitHubIcon = () => (
@@ -181,7 +181,7 @@ export default function HomePage() {
 
         {/* github */}
         <a
-          href="https://github.com/YOUR_NAME/letterboxd-card-backend"
+          href="https://github.com/AKRISHNASRIKAR/letterboxd-card-backend"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs transition-all"
