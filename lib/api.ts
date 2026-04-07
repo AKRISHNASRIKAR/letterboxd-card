@@ -1,6 +1,7 @@
 import type { LetterboxdStats } from '../types/letterboxd'
 
-const BASE = process.env.NEXT_PUBLIC_API_URL
+// Strip any trailing slash so we never generate double-slash URLs
+const BASE = (process.env.NEXT_PUBLIC_API_URL ?? '').replace(/\/+$/, '')
 
 /**
  * Fetches full stats JSON from the Express backend.
