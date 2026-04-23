@@ -132,9 +132,9 @@ export function StatsPreview({ stats }: StatsPreviewProps) {
             Recent watches
           </p>
           <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
-            {stats.recentFilms.slice(0, 7).map(film => (
+            {stats.recentFilms.slice(0, 7).map((film, i) => (
               <div
-                key={film.slug}
+                key={`${film.slug}-${i}`}
                 className="group relative shrink-0 rounded-lg overflow-hidden"
                 style={{
                   width:       '44px',

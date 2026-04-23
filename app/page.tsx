@@ -1,14 +1,12 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { fetchStats } from "@/lib/api";
 import { UserInput } from "@/components/UserInput";
 import { ThemePicker } from "@/components/ThemePicker";
 import { PreviewCard } from "@/components/PreviewCard";
 import { CopyableLink } from "@/components/CopyableLink";
-import { StatsPreview } from "@/components/StatsPreview";
 import { Badge } from "@/components/ui/Badge";
-import type { LetterboxdStats, Theme } from "@/types/letterboxd";
+import type { Theme } from "@/types/letterboxd";
 
 /* ── icons ── */
 const GitHubIcon = () => (
@@ -107,28 +105,12 @@ const STEPS = [
 export default function HomePage() {
   const [username, setUsername] = useState("");
   const [theme, setTheme] = useState<Theme>("default");
-  const [loading, setLoading] = useState(false);
-  const [stats, setStats] = useState<LetterboxdStats | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
-  const handleGenerate = useCallback(async (user: string) => {
-    setLoading(true);
-    setError(null);
-    setStats(null);
-
-    try {
-      const data = await fetchStats(user);
-      setStats(data);
-      setUsername(user);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Something went wrong";
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
+  const handleGenerate = useCallback((user: string) => {
+    setUsername(user);
   }, []);
 
-  const hasResult = !loading && !!stats;
+  const hasResult = !!username;
 
   return (
     <div style={{ fontFamily: "var(--sans)" }}>
@@ -289,7 +271,7 @@ export default function HomePage() {
             }}
           >
             {/* input */}
-            <UserInput onGenerate={handleGenerate} loading={loading} />
+            <UserInput onGenerate={handleGenerate} loading={false} />
 
             {/* divider + theme picker */}
             <div
@@ -301,7 +283,7 @@ export default function HomePage() {
             >
               <ThemePicker value={theme} onChange={setTheme} />
 
-              {stats && (
+              {username && (
                 <span
                   className="text-[11px]"
                   style={{ color: "var(--muted2)", fontFamily: "var(--mono)" }}
@@ -310,48 +292,6 @@ export default function HomePage() {
                 </span>
               )}
             </div>
-
-            {/* error state */}
-            {error && (
-              <div
-                className="flex items-start gap-3 rounded-xl px-4 py-3 animate-fade-in"
-                style={{
-                  background: "var(--redbg)",
-                  border: "1px solid rgba(224,92,92,0.25)",
-                }}
-              >
-                <svg
-                  className="mt-0.5 shrink-0"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  style={{ color: "var(--red)" }}
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="8" x2="12" y2="12" />
-                  <line x1="12" y1="16" x2="12.01" y2="16" />
-                </svg>
-                <p
-                  className="text-sm"
-                  style={{ color: "var(--red)", fontFamily: "var(--sans)" }}
-                >
-                  {error}
-                </p>
-              </div>
-            )}
-
-            {/* loading skeleton */}
-            {loading && (
-              <div className="space-y-3">
-                <div className="skeleton h-[72px] rounded-2xl" />
-                <div className="skeleton h-[52px] rounded-2xl" />
-                <div className="skeleton h-[220px] rounded-2xl" />
-              </div>
-            )}
 
             {/* results */}
             {hasResult && (
@@ -362,9 +302,6 @@ export default function HomePage() {
                   paddingTop: "20px",
                 }}
               >
-                {/* stats summary */}
-                <StatsPreview stats={stats} />
-
                 {/* card preview */}
                 <div>
                   <p
