@@ -2,26 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import { getCardUrl } from '@/lib/api'
-import type { Theme } from '@/types/letterboxd'
 
 interface PreviewCardProps {
   username: string
-  theme:    Theme
 }
 
-const THEME_BG: Record<Theme, string> = {
-  default: '#14181c',
-  dark:    '#0d0d0f',
-  minimal: '#f7f5f0',
-}
-
-export function PreviewCard({ username, theme }: PreviewCardProps) {
+export function PreviewCard({ username }: PreviewCardProps) {
   const [status,  setStatus]  = useState<'loading' | 'loaded' | 'error'>('loading')
   const [imgKey,  setImgKey]  = useState(0)
 
-  const url = getCardUrl(username, theme)
+  const url = getCardUrl(username)
 
-  // reset to loading when url changes
   useEffect(() => {
     setStatus('loading')
     setImgKey(k => k + 1)
@@ -32,7 +23,7 @@ export function PreviewCard({ username, theme }: PreviewCardProps) {
       className="rounded-2xl overflow-hidden relative"
       style={{
         border:      '1px solid var(--border2)',
-        background:  THEME_BG[theme] || 'transparent',
+        background:  '#14181c',
         aspectRatio: '1100 / 340',
         width:       '100%'
       }}
@@ -72,7 +63,7 @@ export function PreviewCard({ username, theme }: PreviewCardProps) {
         </div>
       )}
 
-      {/* actual card PNG from backend */}
+      {/* actual card SVG from backend */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         key={imgKey}

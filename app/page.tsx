@@ -2,11 +2,9 @@
 
 import { useState, useCallback } from "react";
 import { UserInput } from "@/components/UserInput";
-import { ThemePicker } from "@/components/ThemePicker";
 import { PreviewCard } from "@/components/PreviewCard";
 import { CopyableLink } from "@/components/CopyableLink";
 import { Badge } from "@/components/ui/Badge";
-import type { Theme } from "@/types/letterboxd";
 
 /* ── icons ── */
 const GitHubIcon = () => (
@@ -37,11 +35,6 @@ const FEATURES = [
     icon: "🎬",
     title: "Rich stat cards",
     desc: "Total films, this year, lists, followers, and recent watches — all in one beautiful card.",
-  },
-  {
-    icon: "🎨",
-    title: "3 themes",
-    desc: "Default, Dark, and Minimal. Fork the repo and add your own in minutes.",
   },
   {
     icon: "⚡",
@@ -90,8 +83,8 @@ const STEPS = [
   },
   {
     num: "02",
-    title: "Pick a theme",
-    desc: "Choose Default, Dark, or Minimal to match your README style.",
+    title: "Preview your card",
+    desc: "See your stats card live — total films, recent watches, followers, and more.",
   },
   {
     num: "03",
@@ -104,7 +97,6 @@ const STEPS = [
 
 export default function HomePage() {
   const [username, setUsername] = useState("");
-  const [theme, setTheme] = useState<Theme>("default");
 
   const handleGenerate = useCallback((user: string) => {
     setUsername(user);
@@ -139,7 +131,7 @@ export default function HomePage() {
 
         {/* links */}
         <div className="hidden sm:flex items-center gap-1">
-          {["Docs", "Themes", "API"].map((l) => (
+          {["Docs", "API"].map((l) => (
             <a
               key={l}
               href={`#${l.toLowerCase()}`}
@@ -273,26 +265,6 @@ export default function HomePage() {
             {/* input */}
             <UserInput onGenerate={handleGenerate} loading={false} />
 
-            {/* divider + theme picker */}
-            <div
-              className="flex items-center justify-between flex-wrap gap-3"
-              style={{
-                borderTop: "1px solid var(--border)",
-                paddingTop: "16px",
-              }}
-            >
-              <ThemePicker value={theme} onChange={setTheme} />
-
-              {username && (
-                <span
-                  className="text-[11px]"
-                  style={{ color: "var(--muted2)", fontFamily: "var(--mono)" }}
-                >
-                  cached · refreshes hourly
-                </span>
-              )}
-            </div>
-
             {/* results */}
             {hasResult && (
               <div
@@ -304,16 +276,24 @@ export default function HomePage() {
               >
                 {/* card preview */}
                 <div>
-                  <p
-                    className="text-[11px] uppercase tracking-widest mb-3"
-                    style={{
-                      color: "var(--muted2)",
-                      fontFamily: "var(--sans)",
-                    }}
-                  >
-                    Card preview
-                  </p>
-                  <PreviewCard username={username} theme={theme} />
+                  <div className="flex items-center justify-between mb-3">
+                    <p
+                      className="text-[11px] uppercase tracking-widest"
+                      style={{
+                        color: "var(--muted2)",
+                        fontFamily: "var(--sans)",
+                      }}
+                    >
+                      Card preview
+                    </p>
+                    <span
+                      className="text-[11px]"
+                      style={{ color: "var(--muted2)", fontFamily: "var(--mono)" }}
+                    >
+                      cached · refreshes hourly
+                    </span>
+                  </div>
+                  <PreviewCard username={username} />
                 </div>
 
                 {/* embed code */}
@@ -327,7 +307,7 @@ export default function HomePage() {
                   >
                     Embed code
                   </p>
-                  <CopyableLink username={username} theme={theme} />
+                  <CopyableLink username={username} />
                 </div>
               </div>
             )}
@@ -411,7 +391,7 @@ export default function HomePage() {
           FEATURES
       ══════════════════════════════════════════════════════════ */}
       <section
-        id="themes"
+        id="features"
         className="max-w-2xl mx-auto px-6 py-20"
         style={{ borderTop: "1px solid var(--border)" }}
       >

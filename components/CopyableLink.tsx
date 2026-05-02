@@ -2,11 +2,9 @@
 
 import { useState, useCallback } from 'react'
 import { getCardUrl } from '@/lib/api'
-import type { Theme } from '@/types/letterboxd'
 
 interface CopyableLinkProps {
   username: string
-  theme:    Theme
 }
 
 type CopiedKey = 'markdown' | 'html' | 'url' | null
@@ -24,10 +22,10 @@ const CheckIcon = () => (
   </svg>
 )
 
-export function CopyableLink({ username, theme }: CopyableLinkProps) {
+export function CopyableLink({ username }: CopyableLinkProps) {
   const [copied, setCopied] = useState<CopiedKey>(null)
 
-  const url      = getCardUrl(username, theme)
+  const url      = getCardUrl(username)
   const markdown = `![Letterboxd Stats](${url})`
   const html     = `<img src="${url}" alt="Letterboxd Stats" />`
 

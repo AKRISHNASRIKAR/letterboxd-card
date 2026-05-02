@@ -22,18 +22,16 @@ export async function fetchStats(username: string): Promise<LetterboxdStats> {
 }
 
 /**
- * Builds the card PNG URL. This string goes directly into an <img src="...">
+ * Builds the card SVG URL. This string goes directly into an <img src="...">
  * The browser fetches the image itself — no JS overhead.
  */
 export function getCardUrl(
   username: string,
-  theme:    string = 'default',
   width:    number = 480,
   count:    number = 4
 ): string {
   const params = new URLSearchParams({
     user:  username,
-    theme,
     width: String(width),
     count: String(count),
   })

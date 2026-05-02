@@ -21,12 +21,3 @@ export interface LetterboxdStats {
   recentFilms: Film[]
   fetchedAt:   number
 }
-
-export type Theme = 'default' | 'dark' | 'minimal'
-
-export interface CardConfig {
-  username: string
-  theme:    Theme
-  width:    number
-  count:    number
-}
