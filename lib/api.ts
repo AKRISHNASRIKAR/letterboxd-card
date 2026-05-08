@@ -3,6 +3,14 @@ import type { LetterboxdStats } from '../types/letterboxd'
 // Strip any trailing slash so we never generate double-slash URLs
 const BASE = (process.env.NEXT_PUBLIC_API_URL ?? '').replace(/\/+$/, '')
 
+if (!BASE && typeof window !== 'undefined') {
+  console.warn(
+    '[letterboxd-card] NEXT_PUBLIC_API_URL is not set. ' +
+    'Set it in your Vercel project settings to your backend URL ' +
+    '(e.g. https://letterboxd-card-backend.vercel.app) and redeploy.'
+  )
+}
+
 /**
  * Fetches full stats JSON from the Express backend.
  * Throws descriptive errors for 404 / 429 / network failures.
