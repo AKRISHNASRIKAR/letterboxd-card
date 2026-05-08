@@ -33,7 +33,6 @@ export function CopyableLink({ username }: CopyableLinkProps) {
     try {
       await navigator.clipboard.writeText(text)
     } catch {
-      // Fallback for browsers without clipboard API
       const el = document.createElement('textarea')
       el.value = text
       el.style.cssText = 'position:fixed;pointer-events:none;opacity:0'
@@ -53,27 +52,9 @@ export function CopyableLink({ username }: CopyableLinkProps) {
     text:  string
     hint:  string
   }[] = [
-    {
-      key:   'markdown',
-      label: 'Markdown',
-      lang:  'md',
-      text:  markdown,
-      hint:  'GitHub READMEs, Notion, any markdown',
-    },
-    {
-      key:   'html',
-      label: 'HTML',
-      lang:  'html',
-      text:  html,
-      hint:  'Portfolio sites, personal pages',
-    },
-    {
-      key:   'url',
-      label: 'Direct URL',
-      lang:  'url',
-      text:  url,
-      hint:  'Paste anywhere that renders images',
-    },
+    { key: 'markdown', label: 'Markdown',   lang: 'md',   text: markdown, hint: 'GitHub READMEs, Notion, any markdown' },
+    { key: 'html',     label: 'HTML',        lang: 'html', text: html,     hint: 'Portfolio sites, personal pages' },
+    { key: 'url',      label: 'Direct URL',  lang: 'url',  text: url,      hint: 'Paste anywhere that renders images' },
   ]
 
   return (
@@ -85,24 +66,13 @@ export function CopyableLink({ username }: CopyableLinkProps) {
             {/* label row */}
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-2">
-                <span
-                  className="text-[11px] uppercase tracking-widest font-medium"
-                  style={{ color: 'var(--muted2)', fontFamily: 'var(--sans)' }}
-                >
+                <span className="text-[11px] uppercase tracking-widest font-medium text-muted2 font-sans">
                   {s.label}
                 </span>
-                <span
-                  className="text-[10px]"
-                  style={{ color: 'var(--muted2)', fontFamily: 'var(--sans)' }}
-                >
-                  · {s.hint}
-                </span>
+                <span className="text-[10px] text-muted2 font-sans">· {s.hint}</span>
               </div>
               {isCopied && (
-                <span
-                  className="flex items-center gap-1 text-[11px] font-medium animate-fade-in"
-                  style={{ color: 'var(--green)', fontFamily: 'var(--sans)' }}
-                >
+                <span className="flex items-center gap-1 text-[11px] font-medium animate-fade-in text-green font-sans">
                   <CheckIcon />
                   Copied!
                 </span>
@@ -113,26 +83,15 @@ export function CopyableLink({ username }: CopyableLinkProps) {
             <button
               type="button"
               onClick={() => copyText(s.text, s.key)}
-              className="group w-full text-left relative rounded-xl overflow-hidden transition-all duration-150 active:scale-[0.995]"
+              className="group w-full text-left relative rounded-xl overflow-hidden transition-all duration-150 active:scale-[0.995] bg-surface2"
               style={{
-                background:   'var(--surface2)',
-                border:       isCopied
-                  ? '1px solid rgba(82,194,122,0.35)'
-                  : '1px solid var(--border2)',
-                boxShadow:    isCopied ? '0 0 0 3px rgba(82,194,122,0.07)' : 'none',
+                border:    isCopied ? '1px solid rgba(82,194,122,0.35)' : '1px solid var(--border2)',
+                boxShadow: isCopied ? '0 0 0 3px rgba(82,194,122,0.07)' : 'none',
               }}
               title={`Click to copy ${s.label}`}
             >
               {/* lang tag */}
-              <span
-                className="absolute top-2.5 left-3 text-[10px] px-1.5 py-0.5 rounded font-medium"
-                style={{
-                  background:  'var(--surface3)',
-                  color:       'var(--muted)',
-                  fontFamily:  'var(--mono)',
-                  userSelect:  'none',
-                }}
-              >
+              <span className="absolute top-2.5 left-3 text-[10px] px-1.5 py-0.5 rounded font-medium bg-surface3 text-muted font-mono select-none">
                 {s.lang}
               </span>
 
@@ -146,12 +105,8 @@ export function CopyableLink({ username }: CopyableLinkProps) {
 
               {/* code text */}
               <p
-                className="px-4 pt-8 pb-3 text-xs break-all leading-relaxed"
-                style={{
-                  color:      isCopied ? 'var(--green)' : 'rgba(212,168,83,0.8)',
-                  fontFamily: 'var(--mono)',
-                  transition: 'color 0.2s',
-                }}
+                className="px-4 pt-8 pb-3 text-xs break-all leading-relaxed font-mono transition-colors duration-200"
+                style={{ color: isCopied ? 'var(--green)' : 'rgba(212,168,83,0.8)' }}
               >
                 {s.text}
               </p>
@@ -160,11 +115,7 @@ export function CopyableLink({ username }: CopyableLinkProps) {
         )
       })}
 
-      {/* footnote */}
-      <p
-        className="text-[11px] pt-1"
-        style={{ color: 'var(--muted2)', fontFamily: 'var(--sans)' }}
-      >
+      <p className="text-[11px] pt-1 text-muted2 font-sans">
         Cards refresh automatically every hour. No authentication required.
       </p>
     </div>

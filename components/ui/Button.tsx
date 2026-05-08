@@ -20,26 +20,26 @@ interface ButtonProps {
 
 const variantStyles: Record<Variant, string> = {
   primary: `
-    bg-[#d4a853] text-[#160e00] font-semibold
+    bg-accent text-[#160e00] font-semibold
     hover:bg-[#dfb86a] active:bg-[#c89840]
     shadow-[0_2px_16px_rgba(212,168,83,0.25)]
     hover:shadow-[0_4px_24px_rgba(212,168,83,0.38)]
     active:shadow-none
   `,
   ghost: `
-    text-[var(--text2)] hover:text-[var(--text)]
+    text-text2 hover:text-text
     hover:bg-white/[0.05]
     active:bg-white/[0.08]
   `,
   outline: `
-    border border-[var(--border2)] text-[var(--text2)]
-    hover:border-[var(--border3)] hover:text-[var(--text)]
+    border border-border2 text-text2
+    hover:border-border3 hover:text-text
     hover:bg-white/[0.04]
     active:bg-white/[0.07]
   `,
   danger: `
-    border border-[rgba(224,92,92,0.3)] text-[#e05c5c]
-    hover:border-[rgba(224,92,92,0.5)] hover:bg-[rgba(224,92,92,0.08)]
+    border border-[rgba(224,92,92,0.3)] text-red
+    hover:border-[rgba(224,92,92,0.5)] hover:bg-redbg
     active:bg-[rgba(224,92,92,0.12)]
   `,
 }
@@ -71,7 +71,7 @@ export function Button({
       disabled={disabled || loading}
       className={`
         inline-flex items-center justify-center
-        font-medium leading-none
+        font-sans font-medium leading-none
         transition-all duration-150 cursor-pointer select-none
         disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none
         active:scale-[0.97]
@@ -80,18 +80,16 @@ export function Button({
         ${fullWidth ? 'w-full' : ''}
         ${className}
       `}
-      style={{ fontFamily: 'var(--sans)' }}
     >
       {loading && (
         <svg
-          className="animate-spin"
+          className="animate-spin shrink-0"
           width="14" height="14"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           strokeWidth="2.5"
           strokeLinecap="round"
-          style={{ flexShrink: 0 }}
         >
           <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
         </svg>

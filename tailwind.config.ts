@@ -8,6 +8,41 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      colors: {
+        bg:       'var(--bg)',
+        surface:  'var(--surface)',
+        surface2: 'var(--surface2)',
+        surface3: 'var(--surface3)',
+        border:   'var(--border)',
+        border2:  'var(--border2)',
+        border3:  'var(--border3)',
+        text:     'var(--text)',
+        text2:    'var(--text2)',
+        muted:    'var(--muted)',
+        muted2:   'var(--muted2)',
+        accent:   'var(--accent)',
+        accent2:  'var(--accent2)',
+        accent3:  'var(--accent3)',
+        green:    'var(--green)',
+        red:      'var(--red)',
+      },
+      backgroundColor: {
+        accentbg:  'var(--accentbg)',
+        accentbg2: 'var(--accentbg2)',
+        greenbg:   'var(--greenbg)',
+        redbg:     'var(--redbg)',
+      },
+      borderColor: {
+        DEFAULT: 'var(--border)',
+        border2: 'var(--border2)',
+        border3: 'var(--border3)',
+      },
+      borderRadius: {
+        sm: 'var(--radius-sm)',
+        DEFAULT: 'var(--radius)',
+        lg: 'var(--radius-lg)',
+        xl: 'var(--radius-xl)',
+      },
       fontFamily: {
         serif: ['Playfair\\ Display', 'Georgia', 'serif'],
         mono:  ['DM\\ Mono', 'Fira Code', 'monospace'],

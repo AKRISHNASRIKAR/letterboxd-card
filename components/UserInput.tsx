@@ -14,7 +14,6 @@ export function UserInput({ onGenerate, loading }: UserInputProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleSubmit = useCallback(() => {
-    // strip leading @ if user types it
     const clean = value.trim().replace(/^@/, '').toLowerCase()
     if (clean) onGenerate(clean)
   }, [value, onGenerate])
@@ -29,24 +28,18 @@ export function UserInput({ onGenerate, loading }: UserInputProps) {
     <div className="flex gap-3 items-stretch">
       {/* ── input ── */}
       <div
-        className="relative flex-1 transition-all duration-200"
+        className="relative flex-1 transition-all duration-200 bg-surface2 rounded"
         style={{
-          background:   'var(--surface2)',
-          border:       `1px solid ${focused ? 'rgba(212,168,83,0.4)' : 'var(--border2)'}`,
-          borderRadius: 'var(--radius)',
-          boxShadow:    focused
+          border:     `1px solid ${focused ? 'rgba(212,168,83,0.4)' : 'var(--border2)'}`,
+          boxShadow:  focused
             ? '0 0 0 3px rgba(212,168,83,0.08), inset 0 1px 0 rgba(255,255,255,0.04)'
             : 'inset 0 1px 0 rgba(255,255,255,0.03)',
         }}
       >
         {/* @ symbol */}
         <span
-          className="absolute left-4 top-1/2 -translate-y-1/2 select-none pointer-events-none text-sm"
-          style={{
-            color:      focused || value ? 'rgba(212,168,83,0.55)' : 'var(--muted2)',
-            fontFamily: 'var(--mono)',
-            transition: 'color 0.15s',
-          }}
+          className="absolute left-4 top-1/2 -translate-y-1/2 select-none pointer-events-none text-sm font-mono transition-colors duration-150"
+          style={{ color: focused || value ? 'rgba(212,168,83,0.55)' : 'var(--muted2)' }}
         >
           @
         </span>
@@ -61,13 +54,8 @@ export function UserInput({ onGenerate, loading }: UserInputProps) {
           onBlur={() => setFocused(false)}
           placeholder="your-username"
           disabled={loading}
-          className="w-full bg-transparent text-sm outline-none disabled:opacity-50"
-          style={{
-            color:      'var(--text)',
-            fontFamily: 'var(--mono)',
-            padding:    '13px 16px 13px 30px',
-            caretColor: 'var(--accent)',
-          }}
+          className="w-full bg-transparent text-sm outline-none disabled:opacity-50 text-text font-mono"
+          style={{ padding: '13px 16px 13px 30px', caretColor: 'var(--accent)' }}
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="none"
@@ -78,10 +66,7 @@ export function UserInput({ onGenerate, loading }: UserInputProps) {
         {value && !loading && (
           <button
             onClick={() => { setValue(''); inputRef.current?.focus() }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md transition-colors"
-            style={{ color: 'var(--muted)', background: 'transparent' }}
-            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = 'var(--text2)')}
-            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'var(--muted)')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md transition-colors text-muted hover:text-text2 bg-transparent"
             tabIndex={-1}
             type="button"
             title="Clear"

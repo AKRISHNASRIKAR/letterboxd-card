@@ -20,13 +20,8 @@ export function PreviewCard({ username }: PreviewCardProps) {
 
   return (
     <div
-      className="rounded-2xl overflow-hidden relative"
-      style={{
-        border:      '1px solid var(--border2)',
-        background:  '#14181c',
-        aspectRatio: '1100 / 340',
-        width:       '100%'
-      }}
+      className="rounded-2xl overflow-hidden relative bg-[#14181c]"
+      style={{ border: '1px solid var(--border2)', aspectRatio: '1100 / 340', width: '100%' }}
     >
       {/* loading skeleton */}
       {status === 'loading' && (
@@ -45,17 +40,11 @@ export function PreviewCard({ username }: PreviewCardProps) {
 
       {/* error state */}
       {status === 'error' && (
-        <div
-          className="absolute inset-0 flex flex-col items-center justify-center gap-2"
-          style={{ background: 'var(--surface)' }}
-        >
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface">
           <span style={{ fontSize: '28px' }}>🎬</span>
-          <p className="text-xs" style={{ color: 'var(--muted)', fontFamily: 'var(--sans)' }}>
-            Could not render card preview
-          </p>
+          <p className="text-xs text-muted font-sans">Could not render card preview</p>
           <button
-            className="text-xs mt-1 transition-colors"
-            style={{ color: 'var(--accent)', fontFamily: 'var(--sans)' }}
+            className="text-xs mt-1 transition-colors text-accent font-sans"
             onClick={() => { setStatus('loading'); setImgKey(k => k + 1) }}
           >
             Try again →
@@ -63,17 +52,15 @@ export function PreviewCard({ username }: PreviewCardProps) {
         </div>
       )}
 
-      {/* actual card SVG from backend */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         key={imgKey}
         src={url}
         alt={`${username} Letterboxd stats card`}
-        className="w-full h-full block object-cover absolute inset-0"
+        className="w-full h-full block object-cover absolute inset-0 transition-opacity duration-[350ms] ease-out"
         style={{
-          opacity:    status === 'loaded' ? 1 : 0,
-          transition: 'opacity 0.35s ease',
-          display:    status === 'error' ? 'none' : 'block',
+          opacity: status === 'loaded' ? 1 : 0,
+          display: status === 'error' ? 'none' : 'block',
         }}
         onLoad={()  => setStatus('loaded')}
         onError={() => setStatus('error')}
