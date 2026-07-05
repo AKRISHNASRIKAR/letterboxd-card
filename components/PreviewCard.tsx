@@ -3,12 +3,15 @@
 import { useState, useEffect } from 'react'
 import { getCardUrl } from '@/lib/api'
 
+export type CardStatus = 'loading' | 'loaded' | 'error' | 'not_found' | 'rate_limit'
+
 interface PreviewCardProps {
   username: string
+  onStatusChange?: (status: CardStatus) => void
 }
 
-export function PreviewCard({ username }: PreviewCardProps) {
-  const [status,  setStatus]  = useState<'loading' | 'loaded' | 'error'>('loading')
+export function PreviewCard({ username, onStatusChange }: PreviewCardProps) {
+  const [status,  setStatus]  = useState<CardStatus>('loading')
   const [imgKey,  setImgKey]  = useState(0)
 
   const url = getCardUrl(username)
@@ -17,6 +20,27 @@ export function PreviewCard({ username }: PreviewCardProps) {
     setStatus('loading')
     setImgKey(k => k + 1)
   }, [url])
+
+  useEffect(() => {
+    onStatusChange?.(status)
+  }, [status, onStatusChange])
+
+  const handleImageError = async () => {
+    try {
+      const res = await fetch(url)
+      if (res.status === 404) {
+        setStatus('not_found')
+        return
+      }
+      if (res.status === 429) {
+        setStatus('rate_limit')
+        return
+      }
+    } catch {
+      // ignore network errors
+    }
+    setStatus('error')
+  }
 
   return (
     <div
@@ -35,6 +59,30 @@ export function PreviewCard({ username }: PreviewCardProps) {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* not found state */}
+      {status === 'not_found' && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface">
+          <span style={{ fontSize: '28px' }}>👤</span>
+          <p className="text-sm font-medium text-text font-sans">No account exists</p>
+          <p className="text-xs text-muted font-sans">No Letterboxd account found for @{username}</p>
+        </div>
+      )}
+
+      {/* rate limit state */}
+      {status === 'rate_limit' && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface">
+          <span style={{ fontSize: '28px' }}>⏳</span>
+          <p className="text-sm font-medium text-text font-sans">Too many requests</p>
+          <p className="text-xs text-muted font-sans">Please wait a moment before trying again</p>
+          <button
+            className="text-xs mt-1 transition-colors text-accent font-sans"
+            onClick={() => { setStatus('loading'); setImgKey(k => k + 1) }}
+          >
+            Try again →
+          </button>
         </div>
       )}
 
@@ -60,10 +108,10 @@ export function PreviewCard({ username }: PreviewCardProps) {
         className="w-full h-full block object-cover absolute inset-0 transition-opacity duration-[350ms] ease-out"
         style={{
           opacity: status === 'loaded' ? 1 : 0,
-          display: status === 'error' ? 'none' : 'block',
+          display: status === 'loaded' || status === 'loading' ? 'block' : 'none',
         }}
         onLoad={()  => setStatus('loaded')}
-        onError={() => setStatus('error')}
+        onError={handleImageError}
       />
     </div>
   )

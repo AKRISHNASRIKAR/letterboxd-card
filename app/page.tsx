@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { UserInput } from "@/components/UserInput";
-import { PreviewCard } from "@/components/PreviewCard";
+import { PreviewCard, type CardStatus } from "@/components/PreviewCard";
 import { CopyableLink } from "@/components/CopyableLink";
 import { Badge } from "@/components/ui/Badge";
 
@@ -48,9 +48,11 @@ const STEPS = [
 
 export default function HomePage() {
   const [username, setUsername] = useState("");
+  const [cardStatus, setCardStatus] = useState<CardStatus>("loading");
 
   const handleGenerate = useCallback((user: string) => {
     setUsername(user);
+    setCardStatus("loading");
   }, []);
 
   const hasResult = !!username;
@@ -157,14 +159,16 @@ export default function HomePage() {
                     <p className="text-[11px] uppercase tracking-widest text-muted2 font-sans">Card preview</p>
                     <span className="text-[11px] text-muted2 font-mono">cached · refreshes hourly</span>
                   </div>
-                  <PreviewCard username={username} />
+                  <PreviewCard username={username} onStatusChange={setCardStatus} />
                 </div>
 
                 {/* embed code */}
-                <div>
-                  <p className="text-[11px] uppercase tracking-widest mb-3 text-muted2 font-sans">Embed code</p>
-                  <CopyableLink username={username} />
-                </div>
+                {cardStatus !== "not_found" && cardStatus !== "error" && cardStatus !== "rate_limit" && (
+                  <div>
+                    <p className="text-[11px] uppercase tracking-widest mb-3 text-muted2 font-sans">Embed code</p>
+                    <CopyableLink username={username} />
+                  </div>
+                )}
               </div>
             )}
           </div>
