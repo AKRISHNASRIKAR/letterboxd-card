@@ -1,4 +1,4 @@
-import type { LetterboxdStats } from '../types/letterboxd'
+import type { LetterboxdStats } from '@/types/letterboxd'
 
 // Strip any trailing slash so we never generate double-slash URLs
 const BASE = (process.env.NEXT_PUBLIC_API_URL ?? '').replace(/\/+$/, '')
@@ -11,49 +11,95 @@ if (!BASE && typeof window !== 'undefined') {
   )
 }
 
-/**
- * Fetches full stats JSON from the Express backend.
- * Throws descriptive errors for 404 / 429 / network failures.
- */
-export async function fetchStats(username: string): Promise<LetterboxdStats> {
-  const res = await fetch(
-    `${BASE}/api/stats?user=${encodeURIComponent(username)}`,
-    { cache: 'no-store' }
-  )
+export const apiBase = () => BASE
 
-  if (res.status === 404) throw new Error('User not found on Letterboxd')
-  if (res.status === 429) throw new Error('Too many requests — try again in a moment')
-  if (!res.ok)            throw new Error(`Failed to fetch stats (${res.status})`)
+// ── Card parameters ───────────────────────────────────────────────────────────
+// Only what the backend honours. It also accepts `width` and ignores it (the card
+// is a fixed 1100×340), and has no `theme` at all — v1 advertised both, so every
+// copied embed URL carried dead parameters. Anything added here must be real.
 
-  const json = await res.json()
-  return json.data as LetterboxdStats
+/** Posters the renderer will draw. Its POSTER_COUNT caps the row at 4. */
+export const MIN_COUNT = 1
+export const MAX_COUNT = 4
+export const DEFAULT_COUNT = 4
+
+export const clampCount = (n: number): number =>
+  Number.isFinite(n) ? Math.min(MAX_COUNT, Math.max(MIN_COUNT, Math.round(n))) : DEFAULT_COUNT
+
+export interface CardOptions {
+  count?: number
 }
 
 /**
- * Builds the card SVG URL. This string goes directly into an <img src="...">
- * The browser fetches the image itself — no JS overhead.
+ * Builds the card SVG URL. This string goes straight into an <img src="...">;
+ * the browser fetches the image itself, so no JS is involved in rendering it.
  */
-export function getCardUrl(
-  username: string,
-  width:    number = 480,
-  count:    number = 4
-): string {
+export function getCardUrl(username: string, { count = DEFAULT_COUNT }: CardOptions = {}): string {
   const params = new URLSearchParams({
     user:  username,
-    width: String(width),
-    count: String(count),
+    count: String(clampCount(count)),
   })
   return `${BASE}/api/card?${params}`
 }
 
-/**
- * Fetches recent films as JSON (for custom UIs).
- */
-export async function fetchFilms(username: string, count = 8) {
-  const res = await fetch(
-    `${BASE}/api/films?user=${encodeURIComponent(username)}&count=${count}`,
-    { cache: 'no-store' }
-  )
-  if (!res.ok) throw new Error('Failed to fetch films')
-  return res.json()
+// ── Errors ────────────────────────────────────────────────────────────────────
+// The backend distinguishes three failure modes and the UI needs to as well: a
+// blocked scrape is a temporary upstream problem, not a missing user.
+
+export type ApiErrorKind = 'not_found' | 'rate_limit' | 'blocked' | 'network' | 'unknown'
+
+export class ApiError extends Error {
+  readonly kind: ApiErrorKind
+  readonly status?: number
+
+  constructor(kind: ApiErrorKind, message: string, status?: number) {
+    super(message)
+    this.name = 'ApiError'
+    this.kind = kind
+    this.status = status
+  }
+}
+
+/** Maps an HTTP status onto the states the UI knows how to render. */
+export function errorKindForStatus(status: number): ApiErrorKind {
+  if (status === 404) return 'not_found'
+  if (status === 429) return 'rate_limit'
+  // 502 is the backend's "Letterboxd is blocking automated requests" response.
+  if (status === 502 || status === 503) return 'blocked'
+  return 'unknown'
+}
+
+const MESSAGES: Record<ApiErrorKind, string> = {
+  not_found:  'No Letterboxd account found with that username',
+  rate_limit: 'Too many requests — give it a moment and try again',
+  blocked:    'Letterboxd is blocking automated requests right now. This usually clears in a few minutes.',
+  network:    'Could not reach the card service',
+  unknown:    'Something went wrong generating the card',
+}
+
+export const messageFor = (kind: ApiErrorKind): string => MESSAGES[kind]
+
+// ── JSON ──────────────────────────────────────────────────────────────────────
+
+/** Full stats for the HTML data panel, and for anyone building their own UI. */
+export async function fetchStats(username: string, signal?: AbortSignal): Promise<LetterboxdStats> {
+  let res: Response
+  try {
+    res = await fetch(
+      `${BASE}/api/stats?user=${encodeURIComponent(username)}`,
+      { cache: 'no-store', signal },
+    )
+  } catch (err) {
+    // An aborted request is the caller changing their mind, not a failure.
+    if (err instanceof DOMException && err.name === 'AbortError') throw err
+    throw new ApiError('network', MESSAGES.network)
+  }
+
+  if (!res.ok) {
+    const kind = errorKindForStatus(res.status)
+    throw new ApiError(kind, MESSAGES[kind], res.status)
+  }
+
+  const json = await res.json()
+  return json.data as LetterboxdStats
 }

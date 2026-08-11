@@ -20,10 +20,10 @@ interface ButtonProps {
 
 const variantStyles: Record<Variant, string> = {
   primary: `
-    bg-accent text-[#160e00] font-semibold
-    hover:bg-[#dfb86a] active:bg-[#c89840]
-    shadow-[0_2px_16px_rgba(212,168,83,0.25)]
-    hover:shadow-[0_4px_24px_rgba(212,168,83,0.38)]
+    bg-accent text-on-accent font-semibold
+    hover:bg-[color:var(--accent-hover)] active:bg-[color:var(--accent-active)]
+    shadow-[0_2px_16px_var(--accentglow)]
+    hover:shadow-[0_4px_24px_var(--accentglow)]
     active:shadow-none
   `,
   ghost: `

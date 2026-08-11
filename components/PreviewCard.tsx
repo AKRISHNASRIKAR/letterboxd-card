@@ -1,56 +1,57 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getCardUrl } from '@/lib/api'
-
-export type CardStatus = 'loading' | 'loaded' | 'error' | 'not_found' | 'rate_limit'
+import type { ApiErrorKind } from '@/lib/api'
+import { messageFor } from '@/lib/api'
 
 interface PreviewCardProps {
-  username: string
-  onStatusChange?: (status: CardStatus) => void
+  /** The card URL to display. Changing it restarts the load. */
+  url: string
+  /**
+   * Why the request failed, resolved by the stats fetch that runs alongside this
+   * image. v1 re-fetched the failing URL from onError just to read its status
+   * code, which doubled load on the endpoint that was already struggling and
+   * could report a different result than the <img> actually got.
+   */
+  errorKind?: ApiErrorKind | null
+  onRetry?: () => void
 }
 
-export function PreviewCard({ username, onStatusChange }: PreviewCardProps) {
-  const [status,  setStatus]  = useState<CardStatus>('loading')
-  const [imgKey,  setImgKey]  = useState(0)
+const ERROR_ART: Record<ApiErrorKind, { icon: string; title: string }> = {
+  not_found:  { icon: '👤', title: 'No account exists' },
+  rate_limit: { icon: '⏳', title: 'Too many requests' },
+  blocked:    { icon: '🛡️', title: 'Letterboxd is blocking us' },
+  network:    { icon: '🔌', title: 'Cannot reach the service' },
+  unknown:    { icon: '🎬', title: 'Could not render the card' },
+}
 
-  const url = getCardUrl(username)
+export function PreviewCard({ url, errorKind, onRetry }: PreviewCardProps) {
+  const [loaded, setLoaded] = useState(false)
+  const [imageFailed, setImageFailed] = useState(false)
 
   useEffect(() => {
-    setStatus('loading')
-    setImgKey(k => k + 1)
+    setLoaded(false)
+    setImageFailed(false)
   }, [url])
 
-  useEffect(() => {
-    onStatusChange?.(status)
-  }, [status, onStatusChange])
-
-  const handleImageError = async () => {
-    try {
-      const res = await fetch(url)
-      if (res.status === 404) {
-        setStatus('not_found')
-        return
-      }
-      if (res.status === 429) {
-        setStatus('rate_limit')
-        return
-      }
-    } catch {
-      // ignore network errors
-    }
-    setStatus('error')
-  }
+  // An image failure with no diagnosis from the stats fetch still needs a state.
+  const kind: ApiErrorKind | null = errorKind ?? (imageFailed ? 'unknown' : null)
+  const showImage = !kind
 
   return (
     <div
-      className="rounded-2xl overflow-hidden relative bg-[#14181c]"
-      style={{ border: '1px solid var(--border2)', aspectRatio: '1100 / 340', width: '100%' }}
+      // The card renders on --bg, which is now the page colour too, so it would
+      // dissolve into the panel without a frame of its own.
+      className="rounded-lg overflow-hidden relative bg-bg border border-border2"
+      style={{
+        aspectRatio: '1100 / 340',
+        width: '100%',
+        boxShadow: '0 8px 28px rgba(0,0,0,0.45)',
+      }}
     >
-      {/* loading skeleton */}
-      {status === 'loading' && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-          <div className="w-full px-6 space-y-4 py-6 opacity-50">
+      {showImage && !loaded && (
+        <div className="absolute inset-0 flex items-center px-6" aria-hidden="true">
+          <div className="w-full space-y-4 opacity-50">
             <div className="flex items-center gap-3">
               <div className="skeleton w-9 h-9 rounded-full" />
               <div className="flex-1 space-y-2">
@@ -62,57 +63,39 @@ export function PreviewCard({ username, onStatusChange }: PreviewCardProps) {
         </div>
       )}
 
-      {/* not found state */}
-      {status === 'not_found' && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface">
-          <span style={{ fontSize: '28px' }}>👤</span>
-          <p className="text-sm font-medium text-text font-sans">No account exists</p>
-          <p className="text-xs text-muted font-sans">No Letterboxd account found for @{username}</p>
+      {kind && (
+        <div
+          role="alert"
+          className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-6 text-center bg-surface"
+        >
+          <span style={{ fontSize: '28px' }} aria-hidden="true">{ERROR_ART[kind].icon}</span>
+          <p className="text-sm font-medium text-text font-sans">{ERROR_ART[kind].title}</p>
+          <p className="text-xs text-muted font-sans max-w-sm">{messageFor(kind)}</p>
+          {/* Retrying a missing account just fails again — offer it only where
+              waiting actually helps. */}
+          {kind !== 'not_found' && onRetry && (
+            <button
+              type="button"
+              className="text-xs mt-1 transition-colors text-accent font-sans hover:text-accent3"
+              onClick={onRetry}
+            >
+              Try again →
+            </button>
+          )}
         </div>
       )}
 
-      {/* rate limit state */}
-      {status === 'rate_limit' && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface">
-          <span style={{ fontSize: '28px' }}>⏳</span>
-          <p className="text-sm font-medium text-text font-sans">Too many requests</p>
-          <p className="text-xs text-muted font-sans">Please wait a moment before trying again</p>
-          <button
-            className="text-xs mt-1 transition-colors text-accent font-sans"
-            onClick={() => { setStatus('loading'); setImgKey(k => k + 1) }}
-          >
-            Try again →
-          </button>
-        </div>
+      {showImage && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={url}
+          alt="Letterboxd stats card preview"
+          className="w-full h-full block object-contain absolute inset-0 transition-opacity duration-300 ease-out"
+          style={{ opacity: loaded ? 1 : 0 }}
+          onLoad={() => setLoaded(true)}
+          onError={() => setImageFailed(true)}
+        />
       )}
-
-      {/* error state */}
-      {status === 'error' && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-surface">
-          <span style={{ fontSize: '28px' }}>🎬</span>
-          <p className="text-xs text-muted font-sans">Could not render card preview</p>
-          <button
-            className="text-xs mt-1 transition-colors text-accent font-sans"
-            onClick={() => { setStatus('loading'); setImgKey(k => k + 1) }}
-          >
-            Try again →
-          </button>
-        </div>
-      )}
-
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        key={imgKey}
-        src={url}
-        alt={`${username} Letterboxd stats card`}
-        className="w-full h-full block object-cover absolute inset-0 transition-opacity duration-[350ms] ease-out"
-        style={{
-          opacity: status === 'loaded' ? 1 : 0,
-          display: status === 'loaded' || status === 'loading' ? 'block' : 'none',
-        }}
-        onLoad={()  => setStatus('loaded')}
-        onError={handleImageError}
-      />
     </div>
   )
 }

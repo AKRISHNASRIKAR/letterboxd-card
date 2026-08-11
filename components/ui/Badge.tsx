@@ -1,24 +1,31 @@
-type Variant = 'accent' | 'green' | 'muted' | 'live'
+// In Letterboxd's palette the brand colour and the success colour are the same
+// green, so v2's separate `accent` and `green` variants collapsed into one.
+// `orange` and `blue` complete the brand trio.
+type Variant = 'accent' | 'orange' | 'blue' | 'muted'
 
 interface BadgeProps {
-  children:  React.ReactNode
-  variant?:  Variant
-  dot?:      boolean
+  children: React.ReactNode
+  variant?: Variant
+  dot?: boolean
   className?: string
 }
 
 const variantStyles: Record<Variant, string> = {
-  accent: 'bg-accentbg  text-accent border-[rgba(212,168,83,0.22)]',
-  green:  'bg-greenbg   text-green  border-[rgba(82,194,122,0.22)]',
-  muted:  'bg-white/[0.04] text-muted border-white/[0.07]',
-  live:   'bg-greenbg   text-green  border-[rgba(82,194,122,0.22)]',
+  accent: 'bg-accentbg text-accent border-accentline',
+  orange: 'bg-orangebg text-orange border-orangeline',
+  blue:   'bg-bluebg   text-blue   border-blueline',
+  muted:  'bg-white/[0.04] text-muted border-border2',
 }
 
+// v1 had a `live` variant, unused, whose class string was the only reason
+// Tailwind emitted @keyframes pulse — which the hero dot then relied on via an
+// inline `animation: pulse`. That coupling is gone: the hero uses
+// .animate-soft-pulse, defined explicitly in globals.css.
 const dotStyles: Record<Variant, string> = {
   accent: 'bg-accent',
-  green:  'bg-green',
+  orange: 'bg-orange',
+  blue:   'bg-blue',
   muted:  'bg-muted',
-  live:   'bg-green animate-pulse',
 }
 
 export function Badge({ children, variant = 'muted', dot = false, className = '' }: BadgeProps) {
@@ -33,7 +40,7 @@ export function Badge({ children, variant = 'muted', dot = false, className = ''
         ${className}
       `}
     >
-      {dot && <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotStyles[variant]}`} />}
+      {dot && <span aria-hidden="true" className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotStyles[variant]}`} />}
       {children}
     </span>
   )

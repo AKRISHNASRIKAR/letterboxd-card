@@ -6,8 +6,7 @@ interface StatsPreviewProps {
   stats: LetterboxdStats
 }
 
-const fmt = (n: number) =>
-  n >= 1000 ? `${(n / 1000).toFixed(1)}k` : n.toLocaleString()
+const fmt = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : n.toLocaleString())
 
 const STAT_ITEMS = (s: LetterboxdStats['stats']) => [
   { label: 'Films',     value: fmt(s.totalFilms), title: s.totalFilms.toLocaleString() },
@@ -17,6 +16,14 @@ const STAT_ITEMS = (s: LetterboxdStats['stats']) => [
   { label: 'Followers', value: fmt(s.followers),  title: s.followers.toLocaleString()  },
 ]
 
+/**
+ * The same numbers as the card, rendered as HTML from /api/stats.
+ *
+ * Worth having for two reasons: it proves the data is real when the SVG is still
+ * loading or has failed to render, and it shows what the JSON API returns to
+ * anyone thinking about building their own UI on top of it. v1 shipped this
+ * component but never imported it.
+ */
 export function StatsPreview({ stats }: StatsPreviewProps) {
   const initials = (stats.displayName || stats.username)
     .split(' ')
@@ -26,124 +33,75 @@ export function StatsPreview({ stats }: StatsPreviewProps) {
     .toUpperCase()
 
   return (
-    <div
-      className="rounded-2xl overflow-hidden animate-fade-in"
-      style={{
-        background: 'var(--surface)',
-        border:     '1px solid var(--border2)',
-      }}
-    >
+    <div className="rounded-lg overflow-hidden animate-fade-in bg-surface border border-border2">
       {/* ── header ── */}
-      <div
-        className="flex items-center gap-3 px-5 py-4"
-        style={{ borderBottom: '1px solid var(--border)' }}
-      >
-        {/* avatar */}
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-border">
         {stats.avatar ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={stats.avatar}
-            alt={stats.displayName}
-            className="w-10 h-10 rounded-full object-cover shrink-0"
-            style={{ border: '1px solid var(--border2)' }}
+            alt=""
+            className="w-10 h-10 rounded-full object-cover shrink-0 border border-border2"
           />
         ) : (
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold shrink-0"
-            style={{
-              background:  'var(--accentbg)',
-              color:       'var(--accent)',
-              border:      '1px solid rgba(212,168,83,0.22)',
-              fontFamily:  'var(--serif)',
-            }}
+            aria-hidden="true"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold shrink-0 bg-accentbg text-accent border border-accentline font-serif"
           >
             {initials}
           </div>
         )}
 
-        {/* name + handle */}
         <div className="flex-1 min-w-0">
-          <p
-            className="text-sm font-medium truncate"
-            style={{ color: 'var(--text)', fontFamily: 'var(--sans)' }}
-          >
+          <p className="text-sm font-medium truncate text-text font-sans">
             {stats.displayName || stats.username}
           </p>
-          <p
-            className="text-xs truncate"
-            style={{ color: 'var(--muted)', fontFamily: 'var(--mono)' }}
-          >
+          <p className="text-xs truncate text-muted font-mono">
             @{stats.username}
-            {stats.memberSince && (
-              <span style={{ color: 'var(--muted2)' }}> · {stats.memberSince}</span>
-            )}
+            {/* Letterboxd dropped the join date from the profile page, so the
+                backend returns "" here — render nothing rather than a stray dot. */}
+            {stats.memberSince && <span className="text-muted2"> · {stats.memberSince}</span>}
           </p>
         </div>
 
-        {/* found badge */}
-        <div
-          className="shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium"
-          style={{
-            background:  'var(--greenbg)',
-            color:       'var(--green)',
-            border:      '1px solid rgba(82,194,122,0.22)',
-            fontFamily:  'var(--sans)',
-          }}
-        >
-          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
-            <polyline points="20 6 9 17 4 12"/>
+        <span className="shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-accentbg text-accent border border-accentline font-sans">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12" />
           </svg>
-          found
-        </div>
+          live
+        </span>
       </div>
 
       {/* ── stats grid ── */}
-      <div className="grid grid-cols-5 gap-px" style={{ background: 'var(--border)' }}>
+      <dl className="grid grid-cols-5 gap-px bg-[color:var(--border)]">
         {STAT_ITEMS(stats.stats).map(item => (
           <div
             key={item.label}
-            className="flex flex-col items-center justify-center py-4 px-2"
-            style={{ background: 'var(--surface2)' }}
-            title={item.title}
+            className="flex flex-col items-center justify-center py-4 px-2 bg-surface2"
           >
-            <span
-              className="text-xl font-semibold leading-none mb-1"
-              style={{ color: 'var(--accent)', fontFamily: 'var(--serif)' }}
-            >
+            <dd className="text-xl font-semibold leading-none mb-1 text-accent font-serif" title={item.title}>
               {item.value}
-            </span>
-            <span
-              className="text-[10px] uppercase tracking-wider text-center leading-tight"
-              style={{ color: 'var(--muted)', fontFamily: 'var(--sans)' }}
-            >
+            </dd>
+            <dt className="text-[10px] uppercase tracking-wider text-center leading-tight text-muted font-sans">
               {item.label}
-            </span>
+            </dt>
           </div>
         ))}
-      </div>
+      </dl>
 
       {/* ── recent films strip ── */}
       {stats.recentFilms.length > 0 && (
         <div className="px-5 py-4">
-          <p
-            className="text-[11px] uppercase tracking-widest mb-3"
-            style={{ color: 'var(--muted2)', fontFamily: 'var(--sans)' }}
-          >
+          <p className="text-[11px] uppercase tracking-widest mb-3 text-muted2 font-sans">
             Recent watches
           </p>
-          <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
-            {stats.recentFilms.slice(0, 7).map((film, i) => (
-              <div
+          <ul className="flex gap-2 overflow-x-auto pb-1 list-none" style={{ scrollbarWidth: 'none' }}>
+            {stats.recentFilms.slice(0, 12).map((film, i) => (
+              <li
                 key={`${film.slug}-${i}`}
-                className="group relative shrink-0 rounded-lg overflow-hidden"
-                style={{
-                  width:       '44px',
-                  aspectRatio: '2/3',
-                  background:  'var(--surface3)',
-                  border:      '1px solid var(--border)',
-                  cursor:      'default',
-                }}
-                title={`${film.name}${film.rating ? ` — ${film.rating}` : ''}`}
+                className="group relative shrink-0 rounded overflow-hidden bg-surface3 border border-border"
+                style={{ width: '44px', aspectRatio: '2/3' }}
+                title={`${film.name}${film.year ? ` (${film.year})` : ''}${film.rating ? ` — ${film.rating}` : ''}`}
               >
                 {film.posterUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -155,23 +113,18 @@ export function StatsPreview({ stats }: StatsPreviewProps) {
                   />
                 )}
 
-                {/* rating overlay on hover */}
                 {film.rating && (
-                  <div
+                  <span
+                    aria-hidden="true"
                     className="absolute inset-0 flex items-end justify-center pb-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-                    style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 60%)' }}
+                    style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%)' }}
                   >
-                    <span
-                      className="text-[8px] font-medium"
-                      style={{ color: 'var(--accent3)', fontFamily: 'var(--mono)' }}
-                    >
-                      {film.rating}
-                    </span>
-                  </div>
+                    <span className="text-[8px] font-medium text-accent3 font-mono">{film.rating}</span>
+                  </span>
                 )}
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       )}
     </div>

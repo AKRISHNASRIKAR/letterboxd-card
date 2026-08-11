@@ -1,34 +1,69 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Design tokens ────────────────────────────────────────────── */
+/* ─── Design tokens ────────────────────────────────────────────────
+   The palette is Letterboxd's, and deliberately the same one the card
+   renders with (see the backend's renderer.tsx `C` constant): #14181c
+   ground, #1c2228 surfaces, and the green/orange/blue trio. Before this,
+   the site was gold on near-black while the card it was showcasing was
+   blue-grey and green — the product clashed with its own page.
+
+   Font families come from next/font (see app/layout.tsx). Loading them
+   here via @import would block first paint on a third-party request.
+
+   Text colours are checked by scripts/check-contrast.mjs. The binding
+   constraint is --surface3, the lightest surface text lands on. Note that
+   Letterboxd's own mid greys (#89a, #789) sit at 4.30:1 and 3.45:1 there,
+   so the muted tiers below are lifted versions rather than exact copies.
+────────────────────────────────────────────────────────────────── */
 :root {
-  --bg:         #09090b;
-  --surface:    #101012;
-  --surface2:   #17171a;
-  --surface3:   #1e1e22;
-  --border:     rgba(255, 255, 255, 0.06);
-  --border2:    rgba(255, 255, 255, 0.11);
-  --border3:    rgba(255, 255, 255, 0.18);
-  --text:       #f3ede6;
-  --text2:      #b8b0a6;
-  --muted:      #6e6860;
-  --muted2:     #3e3a36;
-  --accent:     #d4a853;
-  --accent2:    #b88c3f;
-  --accent3:    #f2c96e;
-  --accentbg:   rgba(212, 168, 83, 0.08);
-  --accentbg2:  rgba(212, 168, 83, 0.14);
-  --green:      #52c27a;
-  --greenbg:    rgba(82, 194, 122, 0.09);
-  --red:        #e05c5c;
-  --redbg:      rgba(224, 92, 92, 0.09);
-  --serif:      'Playfair Display', Georgia, 'Times New Roman', serif;
-  --mono:       'DM Mono', 'Fira Code', 'Cascadia Code', monospace;
-  --sans:       'Outfit', system-ui, -apple-system, sans-serif;
+  /* Ground and surfaces — --bg and --surface match the card exactly, so a
+     card preview sits flush against the page instead of floating on it. */
+  --bg:         #14181c;
+  --surface:    #1c2228;
+  --surface2:   #232a33;
+  --surface3:   #2c3440;
+
+  --border:     rgba(255, 255, 255, 0.07);
+  --border2:    rgba(255, 255, 255, 0.12);
+  --border3:    rgba(255, 255, 255, 0.20);
+
+  /* Text tiers — all four clear WCAG AA on every surface above. */
+  --text:       #ddeeff;   /* headings                     10.6:1 on --surface3 */
+  --text2:      #b8c6d4;   /* body                          7.2:1               */
+  --muted:      #9aabbd;   /* tertiary copy                 5.3:1               */
+  --muted2:     #8fa3b8;   /* smallest labels               4.8:1               */
+
+  /* Decorative only — never put text in this colour. */
+  --decor:      #3a4552;
+
+  /* Letterboxd green is both the brand colour and the success colour, so it
+     is a single token rather than separate accent/green pairs. */
+  --accent:        #00e054;
+  --accent2:       #00b445;   /* dimmed, decorative */
+  --accent3:       #7bffb0;   /* lifted, for hover text */
+  --accent-hover:  #2ceb6f;   /* filled-surface hover  */
+  --accent-active: #00b445;   /* filled-surface press  */
+  --accentbg:      rgba(0, 224, 84, 0.10);
+  --accentbg2:     rgba(0, 224, 84, 0.16);
+  --accentline:    rgba(0, 224, 84, 0.26);
+  --accentglow:    rgba(0, 224, 84, 0.25);
+  --on-accent:     #14181c;   /* text on a filled accent surface — 10.0:1 */
+
+  /* The other two thirds of the Letterboxd trio. Used for decoration and
+     for distinguishing states, never as the primary action colour. */
+  --orange:     #ff8000;
+  --orangebg:   rgba(255, 128, 0, 0.10);
+  --orangeline: rgba(255, 128, 0, 0.26);
+  --blue:       #40bcf4;
+  --bluebg:     rgba(64, 188, 244, 0.10);
+  --blueline:   rgba(64, 188, 244, 0.26);
+
+  --red:        #ff7a7a;
+  --redbg:      rgba(255, 122, 122, 0.10);
+  --redline:    rgba(255, 122, 122, 0.28);
+
   --radius-sm:  8px;
   --radius:     14px;
   --radius-lg:  20px;
@@ -51,7 +86,7 @@ html {
 body {
   background-color: var(--bg);
   color: var(--text);
-  font-family: var(--sans);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   font-size: 15px;
   line-height: 1.65;
   font-weight: 400;
@@ -62,7 +97,7 @@ body {
 
 /* ─── Selection ────────────────────────────────────────────────── */
 ::selection {
-  background: rgba(212, 168, 83, 0.22);
+  background: rgba(0, 224, 84, 0.26);
   color: var(--text);
 }
 
@@ -70,78 +105,64 @@ body {
 ::-webkit-scrollbar          { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track    { background: transparent; }
 ::-webkit-scrollbar-thumb    { background: var(--surface3); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: var(--muted2); }
+::-webkit-scrollbar-thumb:hover { background: var(--decor); }
 
 /* ─── Focus ────────────────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid rgba(212, 168, 83, 0.5);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* ─── Utility classes ──────────────────────────────────────────── */
-.font-serif { font-family: var(--serif) !important; }
-.font-mono  { font-family: var(--mono)  !important; }
-.font-sans  { font-family: var(--sans)  !important; }
+/* Screen-reader-only, for labels that would otherwise be placeholder-only. */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
-/* film strip top bar decoration */
+/* ─── Decoration ───────────────────────────────────────────────── */
+/* The brand trio as a film-strip rule, rather than a single-colour bar. */
 .film-strip-top {
   background: repeating-linear-gradient(
     90deg,
-    var(--accent) 0px,
-    var(--accent) 18px,
-    transparent  18px,
-    transparent  28px
+    var(--orange) 0px,   var(--orange) 18px,
+    transparent   18px,  transparent   28px,
+    var(--accent) 28px,  var(--accent) 46px,
+    transparent   46px,  transparent   56px,
+    var(--blue)   56px,  var(--blue)   74px,
+    transparent   74px,  transparent   84px
   );
-  opacity: 0.25;
+  opacity: 0.4;
 }
 
-/* glow effect for accent elements */
 .accent-glow {
-  box-shadow: 0 0 24px rgba(212, 168, 83, 0.18), 0 0 48px rgba(212, 168, 83, 0.08);
+  box-shadow: 0 0 24px rgba(0, 224, 84, 0.20), 0 0 48px rgba(0, 224, 84, 0.09);
 }
 
 .accent-glow:hover {
-  box-shadow: 0 0 32px rgba(212, 168, 83, 0.28), 0 0 64px rgba(212, 168, 83, 0.12);
+  box-shadow: 0 0 32px rgba(0, 224, 84, 0.30), 0 0 64px rgba(0, 224, 84, 0.14);
 }
 
-/* card surface */
-.card-surface {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-}
-
-.card-surface-2 {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
-
-/* code / mono pill */
 .code-pill {
   background: var(--surface3);
   color: var(--accent);
-  font-family: var(--mono);
+  font-family: var(--font-mono), monospace;
   font-size: 12px;
   padding: 2px 8px;
   border-radius: 6px;
-  border: 1px solid rgba(212, 168, 83, 0.15);
+  border: 1px solid var(--accentline);
 }
 
-/* section divider */
-.section-divider {
-  border: none;
-  border-top: 1px solid var(--border);
-  margin: 0;
-}
-
-/* stagger animations */
+/* ─── Animation ────────────────────────────────────────────────── */
 .stagger-1 { animation-delay: 0.05s; }
 .stagger-2 { animation-delay: 0.1s; }
 .stagger-3 { animation-delay: 0.15s; }
 .stagger-4 { animation-delay: 0.2s; }
-.stagger-5 { animation-delay: 0.25s; }
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(14px); }
@@ -158,15 +179,18 @@ body {
   100% { background-position:  200% 0; }
 }
 
-.animate-fade-up {
-  animation: fadeUp 0.5s ease both;
+/* Defined here rather than relied on from Tailwind: v1's hero dot used
+   `animation: pulse` inline, which only resolved because an unused Badge
+   variant happened to contain the literal string `animate-pulse`. */
+@keyframes softPulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.4s ease both;
-}
+.animate-fade-up    { animation: fadeUp 0.5s ease both; }
+.animate-fade-in    { animation: fadeIn 0.4s ease both; }
+.animate-soft-pulse { animation: softPulse 2.5s ease-in-out infinite; }
 
-/* skeleton shimmer */
 .skeleton {
   background: linear-gradient(
     90deg,
@@ -176,4 +200,18 @@ body {
   );
   background-size: 200% 100%;
   animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* Respect the OS setting: keep state changes visible, drop the motion. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .skeleton { background: var(--surface2); }
 }

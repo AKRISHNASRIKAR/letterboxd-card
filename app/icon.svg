@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="letterboxd-card">
+  <!--
+    Three film-strip bars in the Letterboxd trio (orange / green / blue), the same
+    motif as the .film-strip-top rule on the site and the dots in the card's own
+    footer. Deliberately bars rather than Letterboxd's three overlapping circles:
+    the site disclaims affiliation, so the icon should sit in the same colour
+    family without imitating their mark. Bars also stay legible at 16px, where
+    overlapping circles smear together.
+  -->
+  <rect width="64" height="64" rx="14" fill="#1c2228"/>
+  <rect x="8"  y="14" width="12" height="36" rx="6" fill="#ff8000"/>
+  <rect x="26" y="14" width="12" height="36" rx="6" fill="#00e054"/>
+  <rect x="44" y="14" width="12" height="36" rx="6" fill="#40bcf4"/>
+</svg>
