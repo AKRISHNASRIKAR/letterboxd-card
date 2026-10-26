@@ -22,6 +22,7 @@ export interface LetterboxdStats {
     year: number
     accuracy: "exact" | "lower_bound" | "unavailable"
     source: "profile" | "rss" | null
+    reason?: "profile_blocked" | "profile_fetch_failed" | "profile_count_missing"
   }
   recentFilms: Film[]
   fetchedAt:   number
