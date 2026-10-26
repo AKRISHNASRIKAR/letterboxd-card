@@ -8,13 +8,25 @@ interface StatsPreviewProps {
 
 const fmt = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : n.toLocaleString())
 
-const STAT_ITEMS = (s: LetterboxdStats['stats']) => [
-  { label: 'Films',     value: fmt(s.totalFilms), title: s.totalFilms.toLocaleString() },
-  { label: 'This year', value: fmt(s.thisYear),   title: s.thisYear.toLocaleString()   },
-  { label: 'Lists',     value: fmt(s.lists),      title: s.lists.toLocaleString()      },
-  { label: 'Following', value: fmt(s.following),  title: s.following.toLocaleString()  },
-  { label: 'Followers', value: fmt(s.followers),  title: s.followers.toLocaleString()  },
-]
+const STAT_ITEMS = (profile: LetterboxdStats) => {
+  const s = profile.stats
+  const info = profile.thisYearInfo
+  const unavailable = !info || info.accuracy === 'unavailable'
+  const partial = info?.accuracy === 'lower_bound'
+  const yearValue = unavailable ? '—' : `${s.thisYear.toLocaleString()}${partial ? '+' : ''}`
+  const yearTitle = unavailable
+    ? 'Yearly count unavailable'
+    : partial
+      ? `At least ${s.thisYear.toLocaleString()} distinct films in ${info.year}; the RSS feed is incomplete`
+      : `${s.thisYear.toLocaleString()} films in ${info.year}`
+  return [
+    { label: 'Films',     value: fmt(s.totalFilms), title: s.totalFilms.toLocaleString() },
+    { label: 'This year', value: yearValue, title: yearTitle },
+    { label: 'Lists',     value: fmt(s.lists),      title: s.lists.toLocaleString()      },
+    { label: 'Following', value: fmt(s.following),  title: s.following.toLocaleString()  },
+    { label: 'Followers', value: fmt(s.followers),  title: s.followers.toLocaleString()  },
+  ]
+}
 
 /**
  * The same numbers as the card, rendered as HTML from /api/stats.
@@ -74,7 +86,7 @@ export function StatsPreview({ stats }: StatsPreviewProps) {
 
       {/* ── stats grid ── */}
       <dl className="grid grid-cols-5 gap-px bg-[color:var(--border)]">
-        {STAT_ITEMS(stats.stats).map(item => (
+        {STAT_ITEMS(stats).map(item => (
           <div
             key={item.label}
             className="flex flex-col items-center justify-center py-4 px-2 bg-surface2"
@@ -88,6 +100,12 @@ export function StatsPreview({ stats }: StatsPreviewProps) {
           </div>
         ))}
       </dl>
+
+      {stats.thisYearInfo?.accuracy === 'lower_bound' && (
+        <p className="px-5 py-2 text-xs text-muted">
+          This year shows a minimum of distinct films from recent diary entries; the full count could not be retrieved.
+        </p>
+      )}
 
       {/* ── recent films strip ── */}
       {stats.recentFilms.length > 0 && (

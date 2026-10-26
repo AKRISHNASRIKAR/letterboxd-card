@@ -18,6 +18,11 @@ export interface LetterboxdStats {
     followers:  number
     lists:      number
   }
+  thisYearInfo?: {
+    year: number
+    accuracy: "exact" | "lower_bound" | "unavailable"
+    source: "profile" | "rss" | null
+  }
   recentFilms: Film[]
   fetchedAt:   number
 }
